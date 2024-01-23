@@ -1,9 +1,9 @@
 // src/components/LoginPage.js
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-
+import axios from 'axios';
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -14,40 +14,48 @@ const LoginPage = () => {
   });
 
   const handleInputChange = (e) => {
-    e.preventDefault();
     setLoginData({
       ...loginData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Fetch existing registrations from localStorage
-    const existingRegistrations = JSON.parse(localStorage.getItem('registrations')) || [];
-
-    if(!loginData.email && !loginData.password){
-      alert("Insuffient entry!!");
-      return;
-    }
-
-    // Find the user with the provided email, phone, and password
-    const user = existingRegistrations.find(u => u.email === loginData.email && u.password === loginData.password);
-
-    if (user) {
-      alert('Login successful');
-      dispatch({ type: 'SET_USER', payload: user });
-      history('/student-main')
-    } else {
-      alert('Invalid credentials');
+  
+    try {
+      const response = await axios.post('http://localhost:5001/api/login', loginData);
+  
+      if (response.status === 200) {
+        // Assuming the server responds with a success status code (e.g., 200 OK)
+        // Dispatch the authenticated user to the Redux store
+        dispatch({ type: 'SET_USER', payload: 'student' });
+        alert('Login successful');
+        history('/student-main');
+      } else {
+        // Handle unexpected response status codes
+        console.error('Unexpected response status:', response.status);
+        alert('Unexpected response from the server. Check console for details.');
+      }
+    } catch (error) {
+      // Handle authentication errors
+      if (error.response && error.response.status === 401) {
+        console.error('Invalid credentials:', error.response.data);
+        alert('Invalid credentials. Please check your email and password.');
+      } else {
+        // Handle other errors (e.g., network issues)
+        console.error('Error authenticating student:', error.response || error);
+        alert('Error authenticating student. Check console for details.');
+      }
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="bg-white p-8 rounded-md shadow-md max-w-md w-full">
         <h1 className="text-4xl font-bold mb-6 text-center">Student Login</h1>
-        <form >
+        <form>
           <div className="mb-4">
             <label htmlFor="email" className="block text-gray-600 text-sm font-medium mb-1">
               Student Email
@@ -83,13 +91,11 @@ const LoginPage = () => {
           </button>
         </form>
         <div className='text-center'>
-            <Link to={'/'}>Back to main page</Link>
-            </div>
-        <div className="text-center">
-
-        <Link to={'/registration'}><span>New user ?</span></Link>
+          <Link to={'/'}>Back to main page</Link>
         </div>
-        
+        <div className="text-center">
+          <Link to={'/registration'}><span>New user ?</span></Link>
+        </div>
       </div>
     </div>
   );

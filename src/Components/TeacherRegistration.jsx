@@ -1,19 +1,18 @@
-// src/components/StudentRegistration.js
+// src/components/TeacherRegistration.js
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
 
-const StudentRegistration = () => {
+const TeacherRegistration = () => {
   const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    branch: '',
+    subject: '',
     phone: '',
-    address: '',
     password: '',
   });
 
@@ -28,25 +27,24 @@ const StudentRegistration = () => {
     e.preventDefault();
 
     try {
-        const response = await axios.post('http://localhost:5001/api/register', formData, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+      // Make a POST request to the server to register the teacher
+      const response = await axios.post('http://localhost:5001/api/register-teacher', formData);
 
-        dispatch({ type: 'SET_USER', payload: response.data.user });
-        alert('Student registered successfully');
+      // Dispatch the registered teacher to the Redux store
+      dispatch({ type: 'SET_TEACHER', payload: 'teacher' });
+
+      alert('Teacher registered successfully');
     } catch (error) {
-        console.error('Error registering student:', error.response || error);
-        alert('Error registering student. Check console for details.');
+      console.error('Error registering teacher:', error.response || error);
+      alert('Error registering teacher. Check console for details.');
     }
-};
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="bg-white p-8 rounded-md shadow-md max-w-md w-full">
-        <h1 className="text-4xl font-bold mb-6 text-center">Student Registration</h1>
-        <form onSubmit={handleRegistration}>
+        <h1 className="text-4xl font-bold mb-6 text-center">Teacher Registration</h1>
+        <form>
           <div className="mb-4">
             <label htmlFor="name" className="block text-gray-600 text-sm font-medium mb-1">
               Name
@@ -74,14 +72,14 @@ const StudentRegistration = () => {
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="branch" className="block text-gray-600 text-sm font-medium mb-1">
-              Branch
+            <label htmlFor="subject" className="block text-gray-600 text-sm font-medium mb-1">
+              Subject
             </label>
             <input
               type="text"
-              id="branch"
-              name="branch"
-              value={formData.branch}
+              id="subject"
+              name="subject"
+              value={formData.subject}
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
             />
@@ -95,18 +93,6 @@ const StudentRegistration = () => {
               id="phone"
               name="phone"
               value={formData.phone}
-              onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-            />
-          </div>
-          <div className="mb-6">
-            <label htmlFor="address" className="block text-gray-600 text-sm font-medium mb-1">
-              Address
-            </label>
-            <textarea
-              id="address"
-              name="address"
-              value={formData.address}
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
             />
@@ -127,6 +113,7 @@ const StudentRegistration = () => {
           <button
             type="submit"
             className="w-full bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300"
+            onClick={handleRegistration}
           >
             Register
           </button>
@@ -139,4 +126,4 @@ const StudentRegistration = () => {
   );
 };
 
-export default StudentRegistration;
+export default TeacherRegistration;
